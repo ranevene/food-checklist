@@ -158,6 +158,12 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }}
 
+function formatDateDDMMYYYY(dateStr) {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}-${month}-${year}`;
+}
+
 /* ---------- DATA ---------- */
 let data = JSON.parse(localStorage.getItem("foodData")) || [];
 
@@ -232,8 +238,10 @@ function render() {
           </label>
           </div>
           <small>
-            Added: ${item.addedDate}
-            ${item.expiryDate ? " | Expiry: " + item.expiryDate : ""}
+            Added: ${formatDateDDMMYYYY(item.addedDate)}
+            ${item.expiryDate
+              ? " | Expiry: " + formatDateDDMMYYYY(item.expiryDate)
+              : ""}
           </small>
           <div class="actions">
             <button onclick="editItem(${cIndex}, ${iIndex})">Edit</button>
@@ -325,6 +333,7 @@ render();
 
 </body>
 </html>
+
 
 
 
