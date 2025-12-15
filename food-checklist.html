@@ -275,7 +275,7 @@ function render() {
                 class="icon-btn edit"
                 title="Edit"
                 onclick="editItem(${cIndex}, ${iIndex})">
-                &#x1F589;
+                &#x270E;
               </button>
               <button
                 class="icon-btn delete"
@@ -291,20 +291,6 @@ function render() {
               ? " | Expiry: " + formatDateDDMMYYYY(item.expiryDate)
               : ""}
           </small>
-          <div class="item-actions">
-            <button
-              class="icon-btn"
-              title="Edit"
-              onclick="editItem(${cIndex}, ${iIndex})">
-              ✏️
-            </button>
-            <button
-              class="icon-btn delete"
-              title="Delete"
-              onclick="deleteItem(${cIndex}, ${iIndex})">
-              🗑️
-            </button>
-          </div>
         </div>
       `;
     });
@@ -391,6 +377,7 @@ render();
 
 </body>
 </html>
+
 
 
 
