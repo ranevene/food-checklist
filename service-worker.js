@@ -2,8 +2,9 @@ self.addEventListener("install", event => {
   event.waitUntil(
     caches.open("food-checklist").then(cache =>
       cache.addAll([
-        "food-checklist.html",
-        "manifest.json"
+        "/food-checklist/food-checklist.html",
+        "/food-checklist/manifest.json"
+        ]);
       ])
     )
   );
@@ -16,3 +17,4 @@ self.addEventListener("fetch", event => {
     )
   );
 });
+
