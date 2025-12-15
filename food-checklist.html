@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Food Checklist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 15px;
+  }
+
+  h1 { text-align: center; }
+
+  input, button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .category {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .item {
+    padding: 6px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+  }
+
+  .expired { background: #ffcccc; }
+  .warning { background: #fff0cc; }
+
+  .row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  }
+
+  .row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+
+  .actions button {
+    background: #777;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .delete {
+    background: #d32f2f;
+  }
+
+  .badge {
+  background: #1976d2;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 6px;
+  white-space: nowrap;
+  }
+
+  .low-stock {
+  background: #d32f2f;
+  }
+
+
+  small {
+    font-size: 11px;
+    color: #555;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Food Checklist</h1>
+
+<input type="text" id="search" placeholder="Search items..." oninput="render()">
+
+<input type="text" id="newCategory" placeholder="Add new category">
+<button onclick="addCategory()">Add Category</button>
+
+<div id="categories"></div>
+
+<script>
+/* ---------- PWA ---------- */
+if ('serviceWorker' in navigator) {
+  if (location.protocol !== "file:") {
+  navigator.serviceWorker.register('service-worker.js');
+}}
+
+/* ---------- DATA ---------- */
+let data = JSON.parse(localStorage.getItem("foodData")) || [];
+
+function save() {
+  localStorage.setItem("foodData", JSON.stringify(data));
+}
+
+function daysBetween(a, b) {
+  return Math.ceil((b - a) / (1000 * 60 * 60 * 24));
+}
+
+/* ---------- NOTIFICATIONS ---------- */
+function checkExpiryNotifications() {
+  if (Notification.permission !== "granted") return;
+
+  const today = new Date();
+
+  data.forEach(cat => {
+    cat.items.forEach(item => {
+      if (!item.expiryDate) return;
+      const diff = daysBetween(today, new Date(item.expiryDate));
+
+      if (diff === 3 || diff === 1 || diff === 0 || diff < 0) {
+        new Notification("Food Expiry Reminder", {
+          body: `${item.name} ${diff < 0 ? "has expired" : "expires soon"}`,
+        });
+      }
+    });
+  });
+}
+
+if ('Notification' in window) {
+  Notification.requestPermission().then(checkExpiryNotifications);
+}
+
+/* ---------- RENDER ---------- */
+function render() {
+  const container = document.getElementById("categories");
+  const query = document.getElementById("search").value.toLowerCase();
+  container.innerHTML = "";
+
+  const today = new Date();
+
+  data.forEach((cat, cIndex) => {
+    const items = cat.items.filter(i =>
+      i.name.toLowerCase().includes(query)
+    );
+
+    if (items.length === 0 && query) return;
+
+    let html = `<h2>${cat.name}</h2>`;
+
+    items.forEach((item, iIndex) => {
+      let cls = "";
+      if (item.expiryDate) {
+        const diff = daysBetween(today, new Date(item.expiryDate));
+        if (diff < 0) cls = "expired";
+        else if (diff <= 3) cls = "warning";
+      }
+
+      html += `
+        <div class="item ${cls}">
+          <div class="row">
+          <label>
+            <input type="checkbox"
+              onchange="toggleItem(${cIndex}, ${iIndex})"
+              ${item.checked ? "checked" : ""}>
+              <span class="item-name">${item.name}</span>
+              ${item.quantity
+                ? `<span class="badge">${item.quantity}</span>`
+                : ""}
+          </label>
+          </div>
+          <small>
+            Added: ${item.addedDate}
+            ${item.expiryDate ? " | Expiry: " + item.expiryDate : ""}
+          </small>
+          <div class="actions">
+            <button onclick="editItem(${cIndex}, ${iIndex})">Edit</button>
+            <button class="delete" onclick="deleteItem(${cIndex}, ${iIndex})">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+      <input type="text" id="name${cIndex}" placeholder="Item name">
+      <input type="text" id="qty${cIndex}" placeholder="Quantity (e.g. 2 kg, 3 packs)">
+      <input type="date" id="exp${cIndex}">
+      <button onclick="addItem(${cIndex})">Add Item</button>
+
+    `;
+
+    const div = document.createElement("div");
+    div.className = "category";
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+/* ---------- CRUD ---------- */
+function addCategory() {
+  const input = document.getElementById("newCategory");
+  if (!input.value) return;
+  data.push({ name: input.value, items: [] });
+  input.value = "";
+  save(); render();
+}
+
+function addItem(cIndex) {
+  const name = document.getElementById(`name${cIndex}`);
+  const qty = document.getElementById(`qty${cIndex}`);
+  const exp = document.getElementById(`exp${cIndex}`);
+
+  if (!name.value) return;
+
+  data[cIndex].items.push({
+    name: name.value,
+    quantity: qty.value || "1",
+    checked: false,
+    addedDate: new Date().toISOString().split("T")[0],
+    expiryDate: exp.value || ""
+  });
+
+  name.value = "";
+  qty.value = "";
+  exp.value = "";
+
+  save();
+  render();
+}
+
+function toggleItem(c, i) {
+  data[c].items[i].checked = !data[c].items[i].checked;
+  save();
+}
+
+function deleteItem(c, i) {
+  if (!confirm("Delete this item?")) return;
+  data[c].items.splice(i, 1);
+  save(); render();
+}
+
+function editItem(c, i) {
+  const item = data[c].items[i];
+
+  const newName = prompt("Edit item name:", item.name);
+  if (newName === null) return;
+
+  const newQty = prompt("Edit quantity:", item.quantity || "1");
+  if (newQty === null) return;
+
+  const newExpiry = prompt("Edit expiry date (YYYY-MM-DD):", item.expiryDate);
+
+  item.name = newName;
+  item.quantity = newQty;
+  item.expiryDate = newExpiry || "";
+
+  save();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
