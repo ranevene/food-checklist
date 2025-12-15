@@ -31,6 +31,32 @@
     border-radius: 5px;
   }
 
+  /* Search bar (tool-style) */
+#search {
+  background: #e9eef3;
+  border: 1px solid #cfd8dc;
+  border-radius: 999px;
+  padding-left: 36px;
+  font-weight: 500;
+}
+
+/* Add category (form-style) */
+#newCategory {
+  background: #ffffff;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+}
+
+/* Optional: subtle focus distinction */
+#search:focus {
+  outline: none;
+  border-color: #90a4ae;
+}
+
+#newCategory:focus {
+  outline: none;
+  border-color: #2e7d32;
+}
   .category {
     background: white;
     border-radius: 8px;
@@ -43,6 +69,21 @@
     border-radius: 5px;
     margin-bottom: 6px;
   }
+
+  .search-wrap {
+  position: relative;
+  }
+
+  .search-wrap::before {
+  content: "🔍";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.6;
+  }
+
 
   .expired { background: #ffcccc; }
   .warning { background: #fff0cc; }
@@ -97,7 +138,9 @@
 
 <h1>Food Checklist</h1>
 
-<input type="text" id="search" placeholder="Search items..." oninput="render()">
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Search items..." oninput="render()">
+</div>
 
 <input type="text" id="newCategory" placeholder="Add new category">
 <button onclick="addCategory()">Add Category</button>
@@ -278,3 +321,4 @@ render();
 
 </body>
 </html>
+
