@@ -1,7 +1,7 @@
 {
   "name": "Food Checklist",
   "short_name": "Food List",
-  "start_url": "food-checklist.html",
+  "start_url": "/food-checklist/food-checklist.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
@@ -13,3 +13,4 @@
     }
   ]
 }
+
