@@ -1,1 +1,3 @@
 # food-checklist
+## icon source
+<a href="https://www.flaticon.com/free-icons/groceries" title="groceries icons">Groceries icons created by monkik - Flaticon</a>
