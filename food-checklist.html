@@ -310,7 +310,7 @@ function editItem(c, i) {
   const newQty = prompt("Edit quantity:", item.quantity || "1");
   if (newQty === null) return;
 
-  const newExpiry = prompt("Edit expiry date (YYYY-MM-DD):", item.expiryDate);
+  const newExpiry = prompt("Edit expiry date (DD-MM-YYYY):", item.expiryDate);
 
   item.name = newName;
   item.quantity = newQty;
@@ -325,6 +325,7 @@ render();
 
 </body>
 </html>
+
 
 
 
