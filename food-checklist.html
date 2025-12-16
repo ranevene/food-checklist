@@ -131,6 +131,28 @@
     padding: 0;
   }
 
+  .add-item-btn {
+    background: transparent;
+    color: #1976d2;
+    border: 1px dashed #1976d2;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .add-item-form {
+    margin-top: 8px;
+  }
+
+  .add-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .add-actions .cancel {
+    background: #9e9e9e;
+  }
+
   .icon-btn.edit {
     background: #1976d2;
     color: #ffffff;
@@ -168,7 +190,6 @@
   background: #d32f2f;
   }
 
-
   small {
     font-size: 11px;
     color: #555;
@@ -195,6 +216,11 @@ if ('serviceWorker' in navigator) {
   if (location.protocol !== "file:") {
   navigator.serviceWorker.register('service-worker.js');
 }}
+
+function toggleAddItem(cIndex) {
+  const form = document.getElementById(`addForm${cIndex}`);
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
 
 function formatDateDDMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -300,10 +326,19 @@ function render() {
     });
 
     html += `
-      <input type="text" id="name${cIndex}" placeholder="Item name">
-      <input type="text" id="qty${cIndex}" placeholder="Quantity (e.g. 2 kg, 3 packs)">
-      <input type="date" id="exp${cIndex}">
-      <button onclick="addItem(${cIndex})">Add Item</button>
+      <button class="add-item-btn" onclick="toggleAddItem(${cIndex})">
+        ＋ Add item
+      </button>
+
+      <div class="add-item-form" id="addForm${cIndex}" style="display:none;">
+        <input type="text" id="name${cIndex}" placeholder="Item name">
+        <input type="text" id="qty${cIndex}" placeholder="Quantity (e.g. 2 kg)">
+        <input type="date" id="exp${cIndex}">
+        <div class="add-actions">
+          <button onclick="addItem(${cIndex})">Add</button>
+          <button class="cancel" onclick="toggleAddItem(${cIndex})">Cancel</button>
+        </div>
+      </div>
 
     `;
 
@@ -327,6 +362,7 @@ function addItem(cIndex) {
   const name = document.getElementById(`name${cIndex}`);
   const qty = document.getElementById(`qty${cIndex}`);
   const exp = document.getElementById(`exp${cIndex}`);
+  document.getElementById(`addForm${cIndex}`).style.display = "none";
 
   if (!name.value) return;
 
@@ -381,6 +417,7 @@ render();
 
 </body>
 </html>
+
 
 
 
